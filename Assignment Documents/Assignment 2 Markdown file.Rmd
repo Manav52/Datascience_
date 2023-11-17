@@ -1,0 +1,60 @@
+---
+title: "Assignment 1 Computer based assignment"
+output: pdf_document
+date: "2023-10-24"
+author: "Manav Saini (Student ID: 20608893)"
+---
+
+## Mutual Funds India detailed Dataset (Source Kaggle)
+
+The data set is downloaded from Kaggle.This is a comprehensive data set about Indian mutual funds which contains a mix of categorical as well as numerical variables providing an opportunity to go in depth and explore as well as predict the relationships and risk factors that these investment vehicles present.
+
+------------------------------------------------------------------------
+
+```{r}
+#Read the file and store it in the variable named CD.
+CD = read.csv("/Users/manavsaini/Downloads/comprehensive_mutual_funds_data.csv")
+```
+
+## Checking the first few rows.
+
+As observed, the data 20 variables of both numeric and categorical variables. 15 of these variables are numerical variables and 10 are continues data values #more suitable towards the regression based tasks.
+
+```{r}
+head(CD)
+```
+
+## Checking the attributes using the "str" function in R.
+
+The file has 20 variables of 814 observations. It is rich enough to predict and use various regression as well as classification techniques.
+
+```{r}
+str(CD)
+```
+
+## Converting Categorical to Numerical.
+
+```{r}
+# Create a categorical variable
+#We selectively converted the categorical variables into factors.
+CD$amc_name = as.factor(CD$amc_name)
+CD$category = as.factor(CD$category)
+CD$sub_category = as.factor(CD$sub_category)
+2
+#checking if the variables have been converted to factors successfully.
+str(CD)
+
+```
+
+## Potential research questions:
+
+Regression Analysis: Predicting Riskiness of Mutual Funds: Can we predict if a mutual fund policy is risky based on attributes like "expense_ratio," "fund_size_cr," "fund_age_yr," "sortino," "alpha," "sd," "beta," "sharpe," "amc_name," "rating," and "category"? This analysis could help investors make informed decisions when choosing mutual funds.
+
+Classification Analysis: Categorizing Mutual Funds: Can we classify mutual funds into categories like "Low Risk," "Medium Risk," and "High Risk" based on the given attributes. This classification can help investors choose funds that align with their risk tolerance.
+
+## Checking the N/a or Nan values.
+```{r}
+#missing values 
+sum(is.na(CD))
+```
+
