@@ -168,6 +168,10 @@ str(CD1)
 # Check class distribution for 'risk_level'
 risk_level_distribution = table(CD1$risk_level)
 
+
+# Removing 'amc_name' and 'sub_category' from CD1
+CD1 = select(CD1, -amc_name,-sub_category)
+
 # Print the distribution
 
 # risk_level_distribution 
@@ -190,15 +194,15 @@ install.packages("ROSE")
 library(ROSE)
 #on hold for now. 
 
+# 
+# set.seed(123) # Set a random seed for reproducibility
+# 
+# # Apply the ovun.sample function to balance the classes
+# balanced_data = ovun.sample(risk_level ~ ., data = CD1, method = "both", 
+#                             N = 119*6)$data
 
-set.seed(123) # Set a random seed for reproducibility
-
-# Apply the ovun.sample function to balance the classes
-balanced_data = ovun.sample(risk_level ~ ., data = CD1, method = "both", 
-                            N = 119*6)$data
-
-# Check the new distribution
-table(balanced_data$risk_level)
+# # Check the new distribution
+# table(balanced_data$risk_level)
 
 #since we want to predict if the mutual fund is a "low risk" or a "high risk"
 #investment, we can convert our risk_level feature into a binary class by 
@@ -241,8 +245,14 @@ print(risk_level_distribution)
 #Converting the new variable risk_binary to a factor. 
 CD1$risk_binary = as.factor(CD1$risk_binary)
 
+#removing risk_level as we have derived the target variable risk_binary from 
+#it so that only one variable is used as the predictor. 
+library(dplyr)
+CD1 = select(CD1, -risk_level)
+
+# 
 # High Risk  Low Risk 
-# 507       282 
+# 488       282 
 #we observe that the high risk is still more than the low risk which might interfere
 #in the model training hence we may proceed to use the re sampling method bootstrap
 #to resolve the class imbalance. #We can also use the decision trees such as 
@@ -311,7 +321,6 @@ tune_model = tune(svm, risk_binary ~ ., data = Trainset, kernel="linear", scale 
                   ranges = list(cost = c(0.001, 0.01, 0.1, 1, 10, 100, 1000)))
 
 summary(tune_model)
-
 
 
 
