@@ -190,9 +190,9 @@ CD1 = select(CD1, -amc_name,-sub_category)
 #of bootstrapping called "ROSE" which helps perform random oversampling of the majority 
 #class or minor under sampling of the minority class. 
 
-install.packages("ROSE")
-library(ROSE)
-#on hold for now. 
+# install.packages("ROSE")
+# library(ROSE)
+# #on hold for now. 
 
 # 
 # set.seed(123) # Set a random seed for reproducibility
@@ -310,20 +310,67 @@ cv_regtree = cv.tree(reg_tree)
 cv_regtree
 
 #Plotting: 
-plot(cv_regtree$size, cv_regtree$dev, type = "b")
+plot(cv_regtree$size, cv_regtree$dev, type = "b", 
+     xlab = "Number of Terminal Nodes", ylab = "Deviance")
+
+#Predicting on the test data: 
+pred_tree = predict(reg_tree, newdata = Testset, type = "class")
+
+#Evaluating model performance: 
+confusion_matrix = table(Predicted = pred_tree, Actual = Testset$risk_binary)
+print(confusion_matrix)
 
 
 #SVM : 
 library(e1071)
 
+#Linear SVM model 
 set.seed(123)  # For reproducibility
-tune_model = tune(svm, risk_binary ~ ., data = Trainset, kernel="linear", scale = TRUE,
+tune_1 = tune(svm, risk_binary ~ ., data = Trainset, kernel="linear", scale = TRUE,
                   ranges = list(cost = c(0.001, 0.01, 0.1, 1, 10, 100, 1000)))
 
-summary(tune_model)
+summary(tune_1)
+
+#Tuning the model
+best_model1 = tune_1$best.model
+summary(best_model1)
+
+#Predicting on the test set. 
+pred1=predict(best_model1, newdata=Testset)
+table(pred1, Testset[,"risk_binary"])
 
 
+#Polynomial SVM model 
+set.seed(123)
 
 
+tune_2 = tune(svm, risk_binary ~ ., data = Trainset, kernel = "polynomial",
+              ranges = list(cost = c(0.001, 0.01, 0.1, 1, 10, 100, 1000), d = c(2:5)),
+              scale=TRUE)
+
+summary(tune_2)
+
+#Tuning 
+best_model2 = tune_2$best.model
+summary(best_model2)
+
+#Predicting using test data.  
+pred2=predict(best_model2, newdata=Testset)
+table(pred2, Testset[,"risk_binary"])
+
+#Radial SVM model:
+set.seed(123)
+tune_3 = tune(svm, risk_binary ~ ., data = Trainset, kernel = "radial",
+              ranges = list(cost = c(0.001, 0.01, 0.1, 1, 10, 100, 1000),
+                            gamma = c(0.5, 1, 2, 3,4)), scale=TRUE)
+summary(tune_3)
+
+#Tuning
+best_model3 = tune_3$best.model
+summary(best_model3)
+
+#Predicting
+pred3=predict(best_model3, newdata=Testset)
+table(pred3, Testset[,"risk_binary"])
 
 
