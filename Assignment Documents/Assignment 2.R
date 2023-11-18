@@ -316,9 +316,21 @@ plot(cv_regtree$size, cv_regtree$dev, type = "b",
 #Predicting on the test data: 
 pred_tree = predict(reg_tree, newdata = Testset, type = "class")
 
+
 #Evaluating model performance: 
 confusion_matrix = table(Predicted = pred_tree, Actual = Testset$risk_binary)
 print(confusion_matrix)
+
+# Calculate the miss classification rate
+misclassification_rate = 1 - sum(diag(confusion_matrix)) / sum(confusion_matrix)
+print(paste("Misclassification Rate:", misclassification_rate))
+
+#The miss classifications rate on the tree is "Miss classification Rate: 0.0714285714285714".
+#Which is quite low meaning that the accuracy is 99.93. The model is performing well
+#and predicting both of the classes fairly equally with low false positives and 
+#false negatives. 
+
+#Tree pruning 
 
 
 #SVM : 
@@ -345,8 +357,8 @@ set.seed(123)
 
 
 tune_2 = tune(svm, risk_binary ~ ., data = Trainset, kernel = "polynomial",
-              ranges = list(cost = c(0.001, 0.01, 0.1, 1, 10, 100, 1000), d = c(2:5)),
-              scale=TRUE)
+              ranges = list(cost = c(0.001, 0.01, 0.1, 1, 10, 100, 1000), 
+                            d = c(2:5)),scale=TRUE)
 
 summary(tune_2)
 
@@ -374,3 +386,4 @@ pred3=predict(best_model3, newdata=Testset)
 table(pred3, Testset[,"risk_binary"])
 
 
+#Unsupervised methods: 
