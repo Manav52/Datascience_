@@ -305,9 +305,10 @@ text(reg_tree, pretty = 0)
 summary(reg_tree)
 
 #Constructing the cross validation plot: 
-set.seed(1)
+set.seed(123)
 cv_regtree = cv.tree(reg_tree)
 cv_regtree
+
 
 #Plotting: 
 plot(cv_regtree$size, cv_regtree$dev, type = "b", 
@@ -387,3 +388,65 @@ table(pred3, Testset[,"risk_binary"])
 
 
 #Unsupervised methods: 
+
+#Trying PCA
+#We will only do PCA in our numerical data being:"returns_3yr",
+#"beta""sd","sortino","expense_ratio" since these are the quantitative variables 
+#and PCA relies on the variables to be quantitative. We will also have to check 
+#for outliers. Scaling is handled by that PCA code for R. 
+
+# #Picking the datapoints for PCA. 
+# numerical_data = CD1[, c("returns_3yr", "beta", "sd", "sortino", "expense_ratio")]
+# pr.out = prcomp(CD1[, 1:4], scale. = TRUE)
+
+#selecting the appropriate variables, removing the category as it is not a numeric
+#value and risk_binary as it is the target variable. 
+CD2 = CD1[, !(names(CD1) %in% c('category', 'risk_binary'))]
+
+#Using PCA. By default the pr.out will center the variables to have mean of zero. 
+#and scaling will ensure that the data being fed to the function is scaled 
+#ensuring that the variables have a standard deviation of 1. 
+pr.out = prcomp(CD2, scale. = TRUE)
+
+pr.out$center
+
+pr.out$scale
+
+pr.out$rotation
+
+summary(pr.out)
+#The summary shows that the PC1 : PC8 captures 87.19% of the variance of the data.
+#the PC9 explains additional 4.45% variance and the last component PC14 captures 
+#only 0.47% of the variance on its own hence we will want to limit the principal
+#components upto PC8. 
+
+#plotting the principal component and proportion of variance. 
+pr.out$sdev
+
+#Standard deviation of each component: 
+pr.var = pr.out$sdev^2
+pr.var
+
+#Variance of each component: 
+pve = pr.var/sum(pr.var)
+pve
+
+#Proportion explained by each component: 
+plot(pve,xlab="Principal Component",ylab="Proportion of Variance Explained",
+     ylim = c(0,1), type = 'b')
+
+#Cumulative proportion: 
+plot(cumsum(pve),xlab="Principal Component",ylab="Cumulative Proportion of Variance Explained",
+     ylim = c(0,1), type = 'b')
+
+#Biplot: 
+biplot(pr.out, scale = 0)
+
+#The biplot shows that the rating and the returns one year are highly correlated
+#with PC2 so are the minsum, minsip, alpha and sharpe with PC1. This prompts us 
+#to investigate the correlation among these variables and then run our model. 
+
+#Finding correlation, linear relationships and outliers. 
+pairs(CD2, panel=panel.smooth)
+
+
